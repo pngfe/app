@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PNGFE | Build A Better Home</title>
+<meta name="description" content="PNGFE is a free app from PNG Family Empowerment Inc: learning for every grade, local business and crowdfunding, and tools for community groups. It keeps working when the signal does not.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0a;          /* the app's own background */
+    --ink-2: #17150f;
+    --gold: #d4af37;         /* the app's own gold */
+    --gold-deep: #8a6d12;    /* gold dark enough for text on bone */
+    --bone: #f3eee2;
+    --bone-2: #e8e1cf;
+    --red: #b3202a;          /* from the PNG flag */
+    --text-on-ink: #f1ece0;
+    --muted-on-ink: #b9b2a0;
+    --text-on-bone: #1c1a14;
+    --muted-on-bone: #5b564a;
+    --display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+    --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font-family: var(--body); font-size: 1.0625rem; line-height: 1.6; background: var(--ink); color: var(--text-on-ink); }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+  .wrap { width: min(1120px, 100% - 2.5rem); margin-inline: auto; }
+  h1, h2, h3 { font-family: var(--display); line-height: 1.05; margin: 0; letter-spacing: -0.02em; }
+  p { margin: 0; }
+
+  /* top bar */
+  .bar { position: sticky; top: 0; z-index: 10; background: rgba(10,10,10,.92); backdrop-filter: blur(8px); border-bottom: 1px solid #26231a; }
+  .bar .wrap { display: flex; align-items: center; justify-content: space-between; padding-block: .8rem; gap: 1rem; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 1.4rem; letter-spacing: .01em; text-decoration: none; color: var(--gold); }
+  .bar nav { display: flex; gap: 1.4rem; align-items: center; }
+  .bar nav a { text-decoration: none; font-size: .95rem; color: var(--muted-on-ink); }
+  .bar nav a:hover { color: var(--text-on-ink); }
+  .btn { display: inline-flex; align-items: center; gap: .55rem; font-family: var(--body); font-weight: 600; font-size: 1rem; text-decoration: none; padding: .85rem 1.4rem; border-radius: 999px; border: 2px solid transparent; cursor: pointer; }
+  .btn-gold { background: var(--gold); color: #1a1500; }
+  .btn-gold:hover { background: #e3c04e; }
+  .btn-line { border-color: #4a4430; color: var(--text-on-ink); }
+  .btn-line:hover { border-color: var(--gold); }
+  .bar .btn { padding: .5rem 1.05rem; font-size: .92rem; }
+
+  /* hero */
+  .hero { padding-block: clamp(3rem, 8vw, 6.5rem); }
+  .hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(2rem, 6vw, 5rem); align-items: center; }
+  .hero h1 { font-size: clamp(2.8rem, 7.4vw, 5.6rem); font-weight: 800; }
+  .hero h1 span { display: block; color: var(--gold); }
+  .hero .lede { margin-top: 1.5rem; max-width: 34rem; font-size: 1.2rem; color: var(--muted-on-ink); }
+  .hero .actions { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: .8rem; }
+  .hero .fine { margin-top: 1rem; font-size: .92rem; color: var(--muted-on-ink); }
+
+  /* phone: the one memorable element, built from the app's own three tabs */
+  .phone { width: min(330px, 100%); margin-inline: auto; background: #000; border: 2px solid #3a3522; border-radius: 34px; padding: 12px; box-shadow: 0 30px 80px rgba(212,175,55,.08); }
+  .screen { border-radius: 24px; background: var(--ink-2); overflow: hidden; display: flex; flex-direction: column; min-height: 520px; }
+  .panel { padding: 1.4rem 1.3rem 1rem; flex: 1; }
+  .panel[hidden] { display: none; }
+  .panel h2 { font-size: 1.6rem; color: var(--gold); }
+  .panel .sub { margin-top: .35rem; font-size: .92rem; color: var(--muted-on-ink); }
+  .panel ul { list-style: none; margin: 1.1rem 0 0; padding: 0; display: grid; gap: .6rem; }
+  .panel li { background: #221f15; border: 1px solid #332e1d; border-radius: 12px; padding: .7rem .85rem; font-size: .95rem; line-height: 1.4; }
+  .panel li b { display: block; font-weight: 600; color: var(--text-on-ink); }
+  .panel li span { color: var(--muted-on-ink); font-size: .88rem; }
+  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); background: #000; border-top: 1px solid #2a2618; }
+  .tab { appearance: none; background: none; border: 0; color: #9e9e9e; font: 500 .82rem var(--body); padding: .75rem .25rem .7rem; cursor: pointer; display: grid; justify-items: center; gap: .25rem; }
+  .tab svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .tab[aria-selected="true"] { color: var(--gold); }
+
+  /* bone sections */
+  .bone { background: var(--bone); color: var(--text-on-bone); }
+  .section { padding-block: clamp(3.5rem, 8vw, 6rem); }
+  .section h2 { font-size: clamp(2rem, 4.6vw, 3.4rem); font-weight: 800; max-width: 18ch; }
+  .section .intro { margin-top: 1rem; max-width: 40rem; font-size: 1.15rem; color: var(--muted-on-bone); }
+
+  .flow { margin-top: 2.6rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; counter-reset: step; border-top: 3px solid var(--text-on-bone); }
+  .flow li { list-style: none; counter-increment: step; padding: 1.4rem 1.6rem 0 0; }
+  .flow li::before { content: counter(step); display: block; font-family: var(--display); font-weight: 800; font-size: 2.6rem; color: var(--red); line-height: 1; margin-bottom: .7rem; }
+  .flow h3 { font-size: 1.35rem; }
+  .flow p { margin-top: .5rem; color: var(--muted-on-bone); }
+  .flow { padding-left: 0; margin-bottom: 0; }
+
+  .who { margin-top: 2.6rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 3rem; }
+  .who div { padding-block: 1.3rem; border-top: 1px solid #3a3522; }
+  .who h3 { font-size: 1.4rem; }
+  .who p { margin-top: .4rem; color: var(--muted-on-ink); max-width: 30rem; }
+
+  /* safety */
+  .safety { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 5rem); align-items: start; }
+  .safety ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 1.1rem; }
+  .safety li { padding-left: 1.1rem; border-left: 4px solid var(--gold); }
+  .safety li b { display: block; font-size: 1.1rem; }
+  .safety li span { color: var(--muted-on-bone); }
+
+  /* download */
+  .get .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 5rem); }
+  .get h2 { font-size: clamp(2rem, 4.6vw, 3.4rem); font-weight: 800; color: var(--gold); }
+  .get .lede { margin-top: 1rem; color: var(--muted-on-ink); max-width: 30rem; }
+  .get .btn { margin-top: 1.6rem; font-size: 1.1rem; padding: 1rem 1.7rem; }
+  .get .meta { margin-top: .9rem; font-size: .92rem; color: var(--muted-on-ink); }
+  .get ol { margin: 0; padding-left: 1.3rem; display: grid; gap: .9rem; color: var(--text-on-ink); }
+  .get ol li::marker { color: var(--gold); font-weight: 700; }
+  .get h3 { font-size: 1.4rem; margin-bottom: 1rem; }
+  .get .warn { margin-top: 1.4rem; padding: .9rem 1rem; border: 1px solid #4a4430; border-radius: 12px; font-size: .95rem; color: var(--muted-on-ink); }
+
+  /* about */
+  .about { background: var(--bone-2); color: var(--text-on-bone); }
+  .about .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 5rem); }
+  .about h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; }
+  .about p + p { margin-top: 1rem; }
+  .about p { color: var(--muted-on-bone); max-width: 34rem; }
+  .about dl { margin: 0; display: grid; gap: 1.2rem; }
+  .about dt { font-family: var(--display); font-weight: 700; font-size: 1.2rem; color: var(--text-on-bone); }
+  .about dd { margin: .15rem 0 0; color: var(--muted-on-bone); }
+
+  footer { padding-block: 2rem; border-top: 1px solid #26231a; font-size: .92rem; color: var(--muted-on-ink); }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 1rem 2rem; justify-content: space-between; }
+
+  @media (max-width: 860px) {
+    .hero .wrap, .safety, .get .wrap, .about .wrap { grid-template-columns: 1fr; }
+    .flow { grid-template-columns: 1fr; }
+    .who { grid-template-columns: 1fr; }
+    .bar nav a:not(.btn) { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top">PNGFE</a>
+    <nav aria-label="Main">
+      <a href="#inside">What is inside</a>
+      <a href="#offline">Offline</a>
+      <a href="#trips">School trips</a>
+      <a href="#about">About</a>
+      <a class="btn btn-gold" href="#download">Get the app</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <h1>Build a better home.<span>Learn. Earn. Belong.</span></h1>
+        <p class="lede">PNGFE is one free app for school lessons from Kindy to Grade 12, local business and crowdfunding, and tools for your village group, church or club. Once the lessons and maps are on your phone, you do not need signal to use them.</p>
+        <div class="actions">
+          <a class="btn btn-gold" href="#download">Download for Android</a>
+          <a class="btn btn-line" href="#inside">See what is inside</a>
+        </div>
+        <p class="fine">From PNG Family Empowerment Inc.</p>
+      </div>
+
+      <div class="phone" aria-label="The three parts of the PNGFE app">
+        <div class="screen">
+          <div class="panel" id="p-box" role="tabpanel" aria-labelledby="t-box">
+            <h2>Box</h2>
+            <p class="sub">Learning for every grade</p>
+            <ul>
+              <li><b>Kindy, Prep, Primary, Secondary and FODE</b><span>Pick your grade and load its lessons.</span></li>
+              <li><b>Lessons, quizzes and games</b><span>Practise a topic, check your answers.</span></li>
+              <li><b>AI tutor</b><span>Ask for help when you are stuck.</span></li>
+              <li><b>Share without data</b><span>Pass a grade pack to a friend's phone.</span></li>
+            </ul>
+          </div>
+          <div class="panel" id="p-biz" role="tabpanel" aria-labelledby="t-biz" hidden>
+            <h2>Biz</h2>
+            <p class="sub">Local business and money</p>
+            <ul>
+              <li><b>Merchants near you</b><span>Find shops on the map.</span></li>
+              <li><b>Sanap Wantaim</b><span>Crowdfunding for small businesses and community projects: lending, equity and donations.</span></li>
+              <li><b>Wallet</b><span>Pay, receive and keep budgets.</span></li>
+              <li><b>Start earning</b><span>Join as an agent or open your own shop.</span></li>
+            </ul>
+          </div>
+          <div class="panel" id="p-base" role="tabpanel" aria-labelledby="t-base" hidden>
+            <h2>Base</h2>
+            <p class="sub">Your group and your community</p>
+            <ul>
+              <li><b>Group tools</b><span>Roll, dues, savings, loans, minutes, polls and officers.</span></li>
+              <li><b>Receipts and statements</b><span>Every payment recorded and shared with members.</span></li>
+              <li><b>School trips and SOS</b><span>Follow an excursion and receive alerts.</span></li>
+              <li><b>Offline maps</b><span>Map your garden or plot, with or without signal.</span></li>
+            </ul>
+          </div>
+          <div class="tabs" role="tablist" aria-label="App sections">
+            <button class="tab" role="tab" id="t-box" aria-selected="true" aria-controls="p-box" tabindex="0">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C6.5 4.3 9.5 4.3 12 6c2.5-1.7 5.5-1.7 8-.5v13c-2.5-1.2-5.5-1.2-8 .5-2.5-1.7-5.5-1.7-8-.5z"/><path d="M12 6v13.5"/></svg>
+              Box
+            </button>
+            <button class="tab" role="tab" id="t-biz" aria-selected="false" aria-controls="p-biz" tabindex="-1">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9l1.5-4.5h13L20 9"/><path d="M4 9c0 1.7 1.3 2.7 2.7 2.7S9.3 10.7 9.3 9c0 1.7 1.3 2.7 2.7 2.7s2.7-1 2.7-2.7c0 1.7 1.3 2.7 2.7 2.7S20 10.7 20 9"/><path d="M5.5 12v7.5h13V12"/></svg>
+              Biz
+            </button>
+            <button class="tab" role="tab" id="t-base" aria-selected="false" aria-controls="p-base" tabindex="-1">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.6"/><circle cx="5" cy="6" r="1.8"/><circle cx="19" cy="6" r="1.8"/><circle cx="5" cy="18" r="1.8"/><circle cx="19" cy="18" r="1.8"/><path d="M10 10.5L6.4 7.2M14 10.5l3.6-3.3M10 13.5l-3.6 3.3M14 13.5l3.6 3.3"/></svg>
+              Base
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bone" id="inside">
+    <div class="wrap">
+      <h2>Made for the whole family</h2>
+      <p class="intro">Students, parents, teachers, shop owners and group officers all use the same app. Each person sees the tools for their own role.</p>
+    </div>
+    <div class="wrap">
+      <div class="who" style="color:var(--text-on-bone)">
+        <div style="border-color:#c9c0a8"><h3>Students</h3><p style="color:var(--muted-on-bone)">Lessons for your grade, quizzes, games and an AI tutor you can ask.</p></div>
+        <div style="border-color:#c9c0a8"><h3>Teachers and schools</h3><p style="color:var(--muted-on-bone)">Run classes, share course material and keep school records in one place.</p></div>
+        <div style="border-color:#c9c0a8"><h3>Parents</h3><p style="color:var(--muted-on-bone)">Follow your child's learning and know where a school trip is.</p></div>
+        <div style="border-color:#c9c0a8"><h3>Groups and small businesses</h3><p style="color:var(--muted-on-bone)">Keep your group's money and minutes in order, or sell and raise funds for your business.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="offline">
+    <div class="wrap">
+      <h2 style="color:var(--gold)">Works when the signal does not</h2>
+      <p class="intro" style="color:var(--muted-on-ink)">Data is expensive and coverage is patchy. PNGFE is built so you download once, then keep going.</p>
+      <ol class="flow" style="border-color:var(--gold);color:var(--text-on-ink)">
+        <li><h3>Download once</h3><p style="color:var(--muted-on-ink)">On Wi-Fi, get your grade's lessons and the map of Papua New Guinea. You can pause and carry on later.</p></li>
+        <li><h3>Use it anywhere</h3><p style="color:var(--muted-on-ink)">Lessons, quizzes and the map open without signal. Plots and GPS work on the map in the garden or on the road.</p></li>
+        <li><h3>Pass it on</h3><p style="color:var(--muted-on-ink)">Send a lesson pack or the map to a phone nearby. No data and no internet needed.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section bone" id="trips">
+    <div class="wrap safety">
+      <div>
+        <h2>Safer school trips</h2>
+        <p class="intro">Schools and guardians can follow an excursion on a map, and a child can call for help with one button.</p>
+      </div>
+      <ul>
+        <li><b>Excursions on the map</b><span>The school sets the trip area and who is going.</span></li>
+        <li><b>SOS button</b><span>An alert goes to the school and guardians straight away.</span></li>
+        <li><b>Sharing controls</b><span>Location sharing is managed in the app, not left on by default.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section get" id="download">
+    <div class="wrap">
+      <div>
+        <h2>Get PNGFE on Android</h2>
+        <p class="lede">The app is free. Download the file to your phone and open it to install.</p>
+        <a class="btn btn-gold" id="apk" href="#" download>Download the app (APK)</a>
+        <p class="meta">Version 1.0.0 for Android phones. About <span id="apk-size">the size shown when you download</span>.</p>
+      </div>
+      <div>
+        <h3>How to install</h3>
+        <ol>
+          <li>Tap the download button and wait for the file to finish.</li>
+          <li>Open the file from your notifications or your Downloads folder.</li>
+          <li>If your phone asks, allow installs from this browser. This is normal for apps that are not from the Play Store.</li>
+          <li>Open PNGFE and create your account.</li>
+        </ol>
+        <p class="warn">Only download PNGFE from this page. Do not install a copy sent by someone you do not know.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section about" id="about">
+    <div class="wrap">
+      <div>
+        <h2>About PNG Family Empowerment</h2>
+        <p>PNG Family Empowerment Inc (PNGFE) is an association that uses information and technology to support individuals and families.</p>
+        <p>The app is an initiative of PNGFE in collaboration with PNGSME Web Services.</p>
+      </div>
+      <dl>
+        <div><dt>Mission</dt><dd>Family empowerment.</dd></div>
+        <div><dt>Vision</dt><dd>Build a better home.</dd></div>
+        <div><dt>Values</dt><dd>Integrity and innovation.</dd></div>
+      </dl>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>&copy; PNG Family Empowerment Inc. All rights reserved.</span>
+    <a href="https://github.com/pngfe">PNGFE on GitHub</a>
+  </div>
+</footer>
+
+<script>
+  // 1. Where the APK lives. Upload it to a GitHub Release and paste the direct link here.
+  var APK_URL = "https://github.com/pngfe/app/releases/latest/download/pngfe.apk";
+  // 2. Optional: file size text, for example "95 MB". Leave empty to hide it.
+  var APK_SIZE = "";
+
+  var apk = document.getElementById("apk");
+  apk.href = APK_URL;
+  var sizeEl = document.getElementById("apk-size");
+  if (APK_SIZE) { sizeEl.textContent = APK_SIZE; } else { sizeEl.parentNode.style.display = "none"; }
+
+  // The three-tab phone: click or use the arrow keys.
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+  function show(i) {
+    tabs.forEach(function (t, n) {
+      var on = n === i;
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+    });
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener("click", function () { show(i); });
+    t.addEventListener("keydown", function (e) {
+      var d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+      if (!d) return;
+      var n = (i + d + tabs.length) % tabs.length;
+      show(n); tabs[n].focus(); e.preventDefault();
+    });
+  });
+</script>
+</body>
+</html>
